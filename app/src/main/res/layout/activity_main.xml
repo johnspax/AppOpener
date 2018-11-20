@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#D1C4E9"
+            android:orientation="vertical">
+
+            <SearchView
+                android:id="@+id/search"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:iconifiedByDefault="false">
+
+                <requestFocus />
+            </SearchView>
+
+            <ListView
+                android:id="@+id/listview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/search" />
+
+            //Time Picker
+            <TimePicker
+                android:id="@+id/simpleTimePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp"
+                android:padding="20dp"
+                android:timePickerMode="spinner" />
+
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Start" />
+
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Stop" />
+
+            <TextView
+                android:id="@+id/msg2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="#4CAF50"
+                android:textSize="50sp" />
+        </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

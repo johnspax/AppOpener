@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">App Opener</string>
+
+    <string name="notification">App Opener Running in the background</string>
+</resources>

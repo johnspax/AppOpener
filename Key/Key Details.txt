@@ -1,0 +1,10 @@
+FileName: AppOpener.jks
+Password: opener_pass
+Alias: App Opener Key
+Password: opener_key_pass
+First and Last Name: John Spax
+Organisational Unit: Dev
+Organisation: Spax Software
+City or Locality: Nairobi
+State or Province: Nairobi
+Country Code: KE

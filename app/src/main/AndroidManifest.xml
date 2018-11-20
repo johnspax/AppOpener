@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="opener.app.spaxsoftware.com.appopener">
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Declaring broadcast receiver for BOOT_COMPLETED event. -->
+        <receiver android:name=".Receiver.MyReceiver" android:enabled="true" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <!-- Declaring broadcast receiver for Notification Action Button Click event. -->
+        <receiver android:name=".Receiver.notificationReceiver" android:enabled="true" android:exported="false">
+        </receiver>
+        <receiver android:name=".Alarm.Alarm" android:exported="true">
+            <intent-filter>
+                <action android:name="opener.app.spaxsoftware.com.appopener.START_ALARM" >
+                </action>
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
