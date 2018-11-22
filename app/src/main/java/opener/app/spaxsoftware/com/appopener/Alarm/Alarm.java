@@ -65,9 +65,10 @@ public class Alarm extends BroadcastReceiver {
             DateFormat df = new SimpleDateFormat("hh:mm a");
             String currentTime = df.format(date);
 
+            strMsg = appName + " app will be opened at exactly " + seTime + " in " + getHours(intSleep) + " time.";
+            Notify("App Opener", strMsg, context);
+
             if (currentTime.equals(seTime)) {
-                strMsg = appName + " app will be opened at exactly " + seTime + " in " + getHours(intSleep) + " time.";
-                Notify("App Opener", strMsg, context);
                 Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
                 if (launchIntent != null) {
                     context.startActivity(launchIntent);//null pointer check in case package name was not found
@@ -82,14 +83,18 @@ public class Alarm extends BroadcastReceiver {
     public void setAlarm(Context context, String time)
     {
         intSleep = getMilliseconds(time);
+        String hrs = getHours(intSleep);
+        long sleepTime = intSleep;
+        if(hrs.contains("Hour"))
+            sleepTime = 3600000;
         AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intSleep, pi); // Millisec * Second * Minute
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), sleepTime, pi); // Millisec * Second * Minute
 
         SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
         strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +
-                p.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM") + " in " + getHours(intSleep) + " time.";
+                p.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM") + " in " + hrs + " time.";
         Notify("App Opener", strMsg, context);
     }
 
