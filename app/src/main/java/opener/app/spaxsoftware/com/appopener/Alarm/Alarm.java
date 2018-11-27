@@ -27,7 +27,7 @@ import static android.app.Notification.PRIORITY_DEFAULT;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Alarm extends BroadcastReceiver {
-    String time,strRestart,packageName, appName,strMsg;
+    String time, strRestart, packageName, appName, strMsg;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     PowerManager.WakeLock wl;
@@ -36,14 +36,11 @@ public class Alarm extends BroadcastReceiver {
     int pid = 1, pIntentId = 2;
     Context ctx;
     long intSleep = 300000;
+
     @Override
-    public void onReceive(Context context, Intent intent)
-    {
+    public void onReceive(Context context, Intent intent) {
         try {
             this.ctx = context;
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
-            wl.acquire();
 
             // Code to be run after every X time.
             prefs = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
@@ -73,22 +70,29 @@ public class Alarm extends BroadcastReceiver {
                 if (launchIntent != null) {
                     context.startActivity(launchIntent);//null pointer check in case package name was not found
                 }
+                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
             }
 
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void setAlarm(Context context, String time)
-    {
+    public void setAlarm(Context context, String time) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+        wl.acquire();
+
         intSleep = getMilliseconds(time);
         String hrs = getHours(intSleep);
 
-        AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intSleep, pi); // Millisec * Second * Minute
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
 
         SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
         strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +
@@ -96,8 +100,7 @@ public class Alarm extends BroadcastReceiver {
         Notify("App Opener", strMsg, context);
     }
 
-    public void cancelAlarm(Context context)
-    {
+    public void cancelAlarm(Context context) {
         Intent intent = new Intent(context, Alarm.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
