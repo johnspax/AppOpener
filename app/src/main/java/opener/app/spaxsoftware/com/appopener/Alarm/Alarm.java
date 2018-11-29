@@ -27,7 +27,7 @@ import static android.app.Notification.PRIORITY_DEFAULT;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Alarm extends BroadcastReceiver {
-    String time, strRestart, packageName, appName, strMsg;
+    String time, packageName, appName, strMsg;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     PowerManager.WakeLock wl;
@@ -35,7 +35,7 @@ public class Alarm extends BroadcastReceiver {
     private NotificationCompat.Builder mBuilder;
     int pid = 1, pIntentId = 2;
     Context ctx;
-    long intSleep = 300000;
+    long intSleep = 300000, restartMillis = 0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -49,32 +49,31 @@ public class Alarm extends BroadcastReceiver {
             appName = prefs.getString(MyConstants.APP_NAME, "");
             SimpleDateFormat stf = new SimpleDateFormat("HH:mm");
             Date t = stf.parse(time);
-            android.text.format.DateFormat f = new android.text.format.DateFormat();
-            strRestart = f.format("hh:mm a", t).toString();
+            String rt = stf.format(t);
+            SimpleDateFormat dfmt = new SimpleDateFormat("yyyy-MM-dd");
+            String dt = dfmt.format(new Date()) + " " + rt;
+            restartMillis = timeInMillis(dt);//time when alarm rang today in milliseconds, System will sleep from this time to next day same time.
 
+            //Set Sleep time in shared preferences
             intSleep = getMilliseconds(time);
             editor = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE).edit();
             editor.putLong(MyConstants.INT_SLEEP, intSleep);
             editor.apply();
 
             String seTime = prefs.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM");
-            Date date = new Date();
-            DateFormat df = new SimpleDateFormat("hh:mm a");
-            String currentTime = df.format(date);
-
             strMsg = appName + " app will be opened at exactly " + seTime + " in " + getHours(intSleep) + " time.";
             Notify("App Opener", strMsg, context);
 
-            if (currentTime.equals(seTime)) {
-                Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-                if (launchIntent != null) {
-                    context.startActivity(launchIntent);//null pointer check in case package name was not found
-                }
-                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
-                PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
+            /*if (currentTime.equals(seTime)) {*/
+            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+            if (launchIntent != null) {
+                context.startActivity(launchIntent);//null pointer check in case package name was not found
             }
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, restartMillis + intSleep, intSleep, pi); // Millisec * Second * Minute
+            //}
 
         } catch (Exception e) {
             e.printStackTrace();
