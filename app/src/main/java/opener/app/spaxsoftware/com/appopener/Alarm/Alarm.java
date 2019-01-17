@@ -1,14 +1,21 @@
 package opener.app.spaxsoftware.com.appopener.Alarm;
 
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.Icon;
+import android.os.Build;
+import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
 import java.math.BigDecimal;
@@ -62,7 +69,10 @@ public class Alarm extends BroadcastReceiver {
 
             String seTime = prefs.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM");
             strMsg = appName + " app will be opened at exactly " + seTime + " in " + getHours(intSleep) + " time.";
-            Notify("App Opener", strMsg, context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                NotifyO("App Opener", strMsg, context);
+            else
+                Notify("App Opener", strMsg, context);
 
             /*if (currentTime.equals(seTime)) {*/
             Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
@@ -71,6 +81,9 @@ public class Alarm extends BroadcastReceiver {
             }
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+            i.addCategory("android.intent.category.DEFAULT");
+            i.putExtra("Next Alarm", "Set Time " + seTime);
+            i.setClass(context, Alarm.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
             am.setRepeating(AlarmManager.RTC_WAKEUP, restartMillis + intSleep, intSleep, pi); // Millisec * Second * Minute
             //}
@@ -90,13 +103,19 @@ public class Alarm extends BroadcastReceiver {
 
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+        i.addCategory("android.intent.category.DEFAULT");
+        i.putExtra("Alarm", "Sleep hours " + hrs);
+        i.setClass(context, Alarm.class);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
         am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
 
         SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
         strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +
                 p.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM") + " in " + hrs + " time.";
-        Notify("App Opener", strMsg, context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            NotifyO("App Opener", strMsg, context);
+        else
+            Notify("App Opener", strMsg, context);
     }
 
     public void cancelAlarm(Context context) {
@@ -192,6 +211,9 @@ public class Alarm extends BroadcastReceiver {
                 .setSmallIcon(R.mipmap.ic_launcher_round);
         //This is the intent of PendingIntent
         Intent intentAction = new Intent("opener.app.spaxsoftware.com.appopener.string.close");
+        intentAction.addCategory("android.intent.category.DEFAULT");
+        intentAction.putExtra("Notification", "Set Notification");
+        intentAction.setClass(ctx, Alarm.class);
         intentAction.setClass(ctx, notificationReceiver.class);
         PendingIntent pIntent = PendingIntent.getBroadcast(ctx, pIntentId, intentAction, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentText(strMsg);
@@ -200,5 +222,48 @@ public class Alarm extends BroadcastReceiver {
         mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(strMsg));
         mBuilder.setPriority(PRIORITY_DEFAULT);
         mNotifyManager.notify(pid, mBuilder.build());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void NotifyO(String Title, String strMsg, Context ctx) {
+        // Sets an ID for the notification, so it can be updated.
+        int notifyID = 1;
+        String CHANNEL_ID = "my_channel_01";// The id of the channel.
+        CharSequence name = "Test";// The user-visible name of the channel.
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        // Create a notification and set the notification channel.
+        Intent intentAction = new Intent("opener.app.spaxsoftware.com.appopener.string.close");
+        intentAction.addCategory("android.intent.category.DEFAULT");
+        intentAction.putExtra("Notification", "Set Notification");
+        intentAction.setClass(ctx, Alarm.class);
+        intentAction.setClass(ctx, notificationReceiver.class);
+        PendingIntent pIntent = PendingIntent.getBroadcast(ctx, pIntentId, intentAction, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //Notification.Action act = new Notification.Action(R.drawable.ic_close_green_24dp, "Close", pIntent);
+
+        Notification.Action action = new Notification.Action.Builder(
+                Icon.createWithResource(ctx, R.drawable.ic_close_green_24dp),
+                "Close",
+                pIntent).build();
+
+        Notification notification = new Notification.Builder(ctx)
+                .setContentTitle(Title)
+                .setContentText(strMsg)
+                .setContentInfo("Info")
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setChannelId(CHANNEL_ID)
+                .addAction(action)
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                .setOnlyAlertOnce(false)
+                .setOngoing(false)
+                .build();
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.createNotificationChannel(mChannel);
+
+        // Issue the notification.
+        mNotificationManager.notify(pid, notification);
     }
 }
