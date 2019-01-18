@@ -257,6 +257,8 @@ public class Alarm extends BroadcastReceiver {
                 .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
                 .setOnlyAlertOnce(false)
                 .setOngoing(false)
+                .setStyle(new Notification.BigTextStyle().bigText(strMsg))
+                .setWhen(System.currentTimeMillis())
                 .build();
 
         NotificationManager mNotificationManager =
