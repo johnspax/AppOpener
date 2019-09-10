@@ -3,6 +3,7 @@ package opener.app.spaxsoftware.com.appopener;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         editor.putString(MyConstants.APP_NAME, AppName);
                         editor.putString(MyConstants.PACKAGE_NAME, pName);
                         editor.putString(MyConstants.SET_TIME_FORMATTED, strRestart);
+                        editor.putBoolean(MyConstants.BOOT_ALARM_SET, true);
                         editor.apply();
 
                         Alarm alarm = new Alarm();
@@ -115,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             public void onClick(View v) {
                 Alarm alarm = new Alarm();
                 alarm.cancelAlarm(MainActivity.this);
+                editor = getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE).edit();
+                editor.putBoolean(MyConstants.BOOT_ALARM_SET, false);
+                editor.apply();
             }
         });
 

@@ -1,7 +1,7 @@
 package opener.app.spaxsoftware.com.appopener.Util;
 
 public abstract class MyConstants {
-    public static final String TIME= "TIME";
+    public static final String BOOT_ALARM_SET = "BOOT_ALARM_SET";
     public static final String PACKAGE_NAME= "PACKAGE_NAME";
     public static final String APP_NAME = "APP_NAME";
     public static final String MY_PREFERENCES = "SLEEP_TIME";

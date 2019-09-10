@@ -31,6 +31,7 @@ import opener.app.spaxsoftware.com.appopener.Receiver.notificationReceiver;
 import opener.app.spaxsoftware.com.appopener.Util.MyConstants;
 
 import static android.app.Notification.PRIORITY_DEFAULT;
+import static android.app.Notification.PRIORITY_HIGH;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Alarm extends BroadcastReceiver {
@@ -94,37 +95,52 @@ public class Alarm extends BroadcastReceiver {
     }
 
     public void setAlarm(Context context, String time) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
-        wl.acquire();
+        try {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+            wl.acquire();
 
-        intSleep = getMilliseconds(time);
-        String hrs = getHours(intSleep);
+            intSleep = getMilliseconds(time);
+            String hrs = getHours(intSleep);
 
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
-        i.addCategory("android.intent.category.DEFAULT");
-        i.putExtra("Alarm", "Sleep hours " + hrs);
-        i.setClass(context, Alarm.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+            i.addCategory("android.intent.category.DEFAULT");
+            i.putExtra("Alarm", "Sleep hours " + hrs);
+            i.setClass(context, Alarm.class);
+            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
 
-        SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
-        strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +
-                p.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM") + " in " + hrs + " time.";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            NotifyO("App Opener", strMsg, context);
-        else
-            Notify("App Opener", strMsg, context);
+            SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
+            strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +
+                    p.getString(MyConstants.SET_TIME_FORMATTED, "06:01 AM") + " in " + hrs + " time.";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                NotifyO("App Opener", strMsg, context);
+            else
+                Notify("App Opener", strMsg, context);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void cancelAlarm(Context context) {
-        Intent intent = new Intent(context, Alarm.class);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(sender);
-        Notify("App Opener", "App restart has been cancelled!", context);
-        wl.release();
+        try {
+            //Intent intent = new Intent(context, Alarm.class);
+            Intent i = new Intent("opener.app.spaxsoftware.com.appopener.START_ALARM");
+            i.addCategory("android.intent.category.DEFAULT");
+            i.setClass(context, Alarm.class);
+            PendingIntent sender = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(sender);
+            //Notify("App Opener", "App restart has been cancelled!", context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                NotifyO("App Opener", "App restart has been cancelled!", context);
+            else
+                Notify("App Opener", "App restart has been cancelled!", context);
+            //wl.release();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     private int getMilliseconds(String time) {
@@ -198,7 +214,7 @@ public class Alarm extends BroadcastReceiver {
         return strMsg;
     }
 
-    private void Notify(String Title, String strMsg, Context ctx) {
+    public void Notify(String Title, String strMsg, Context ctx) {
         mNotifyManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(ctx);
         mBuilder.setContentTitle(Title)
@@ -220,12 +236,12 @@ public class Alarm extends BroadcastReceiver {
         mBuilder.setContentIntent(pIntent);
         mBuilder.addAction(R.drawable.ic_close_green_24dp, "Close", pIntent);
         mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(strMsg));
-        mBuilder.setPriority(PRIORITY_DEFAULT);
+        mBuilder.setPriority(PRIORITY_HIGH);
         mNotifyManager.notify(pid, mBuilder.build());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void NotifyO(String Title, String strMsg, Context ctx) {
+    public void NotifyO(String Title, String strMsg, Context ctx) {
         // Sets an ID for the notification, so it can be updated.
         int notifyID = 1;
         String CHANNEL_ID = "my_channel_01";// The id of the channel.
