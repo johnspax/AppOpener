@@ -275,6 +275,7 @@ public class Alarm extends BroadcastReceiver {
                 .setOngoing(false)
                 .setStyle(new Notification.BigTextStyle().bigText(strMsg))
                 .setWhen(System.currentTimeMillis())
+                .setShowWhen(true)
                 .build();
 
         NotificationManager mNotificationManager =
