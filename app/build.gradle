@@ -9,10 +9,13 @@ android {
         versionCode 15
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        proguardFiles 'proguard-rules.pro', getDefaultProguardFile('proguard-android.txt')
+        manifestPlaceholders = [:]
+        multiDexEnabled = true
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
