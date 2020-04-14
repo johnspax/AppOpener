@@ -1,6 +1,5 @@
 package opener.app.spaxsoftware.com.appopener.Alarm;
 
-import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -10,17 +9,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import android.os.Message;
 import android.os.PowerManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,7 +26,6 @@ import opener.app.spaxsoftware.com.appopener.R;
 import opener.app.spaxsoftware.com.appopener.Receiver.notificationReceiver;
 import opener.app.spaxsoftware.com.appopener.Util.MyConstants;
 
-import static android.app.Notification.PRIORITY_DEFAULT;
 import static android.app.Notification.PRIORITY_HIGH;
 import static android.content.Context.MODE_PRIVATE;
 
