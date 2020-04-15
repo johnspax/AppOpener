@@ -1,6 +1,8 @@
 package opener.app.spaxsoftware.com.appopener.Alarm;
 
+import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +14,8 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.PowerManager;
+import android.os.SystemClock;
+
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
@@ -27,6 +31,7 @@ import opener.app.spaxsoftware.com.appopener.Receiver.notificationReceiver;
 import opener.app.spaxsoftware.com.appopener.Util.MyConstants;
 
 import static android.app.Notification.PRIORITY_HIGH;
+import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Alarm extends BroadcastReceiver {
@@ -81,7 +86,8 @@ public class Alarm extends BroadcastReceiver {
             i.putExtra("Next Alarm", "Set Time " + seTime);
             i.setClass(context, Alarm.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-            am.setRepeating(AlarmManager.RTC_WAKEUP, restartMillis + intSleep, intSleep, pi); // Millisec * Second * Minute
+            //am.setRepeating(AlarmManager.RTC_WAKEUP, restartMillis + intSleep, intSleep, pi); // Millisec * Second * Minute
+            am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + intSleep , pi);
             //}
 
         } catch (Exception e) {
@@ -92,7 +98,8 @@ public class Alarm extends BroadcastReceiver {
     public void setAlarm(Context context, String time) {
         try {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+            //wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+            wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK  | PowerManager.ACQUIRE_CAUSES_WAKEUP, "myWakeLock");
             wl.acquire();
 
             intSleep = getMilliseconds(time);
@@ -104,7 +111,8 @@ public class Alarm extends BroadcastReceiver {
             i.putExtra("Alarm", "Sleep hours " + hrs);
             i.setClass(context, Alarm.class);
             PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-            am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
+            //am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + intSleep, intSleep, pi); // Millisec * Second * Minute
+            am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + intSleep , pi);
 
             SharedPreferences p = context.getSharedPreferences(MyConstants.MY_PREFERENCES, MODE_PRIVATE);
             strMsg = p.getString(MyConstants.APP_NAME, "App") + " app will be opened at exactly " +

@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:allowBackup="true"
@@ -28,7 +30,10 @@
         <!-- Declaring broadcast receiver for Notification Action Button Click event. -->
         <receiver android:name=".Receiver.notificationReceiver" android:enabled="true" android:exported="false">
         </receiver>
-        <receiver android:name=".Alarm.Alarm" android:exported="true">
+        <receiver android:name=".Alarm.Alarm"
+            android:exported="true"
+            android:enabled="true"
+            android:process=":remote">
             <intent-filter>
                 <action android:name="opener.app.spaxsoftware.com.appopener.START_ALARM" >
                 </action>

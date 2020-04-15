@@ -1,11 +1,17 @@
 package opener.app.spaxsoftware.com.appopener;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -39,11 +45,28 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (!Settings.canDrawOverlays(this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Allow Permission!")
+                    .setMessage("You need to allow permission for the app to work properly.")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Continue with operation
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                            startActivityForResult(intent, 0);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
+
         // Locate the ListView in listview_main.xml
         list = findViewById(R.id.listview);
         tp = findViewById(R.id.simpleTimePicker);
         btn_Start = findViewById(R.id.btnStart);
         btn_Stop = findViewById(R.id.btnStop);
+        editsearch = findViewById(R.id.search);
 
         pName = "";
         AppName = "";
@@ -76,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //editsearch.setQuery(pName, false);
                 list.setVisibility(View.GONE);
                 pName = pnArray.get(position).getPackageName();
                 AppName = pnArray.get(position).getApplicationName();
@@ -124,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         });
 
         // Locate the EditText in listview_main.xml
-        editsearch = findViewById(R.id.search);
         editsearch.setOnQueryTextListener(this);
     }
 
